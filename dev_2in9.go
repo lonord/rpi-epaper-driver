@@ -153,8 +153,9 @@ func (d *dev2in9) setCursor(x, y uint) {
 
 func getImageByte(j, i int, img image.Image) byte {
 	var b byte
-	for x := i * 8; x < 8; x++ {
-		if getPixelValue(x, j, img) > 0 {
+	for x := 0; x < 8; x++ {
+		xx := i*8 + x
+		if getPixelValue(xx, j, img) > 0 {
 			b = b | (1 << uint(7-x))
 		}
 	}
@@ -165,7 +166,7 @@ func getPixelValue(x, y int, img image.Image) int {
 	c := img.At(x, y)
 	r, g, b, _ := c.RGBA()
 	if r == 0 && g == 0 && b == 0 {
-		return 0
+		return 1
 	}
-	return 1
+	return 0
 }
