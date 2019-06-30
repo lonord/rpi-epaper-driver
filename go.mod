@@ -1,4 +1,4 @@
-module epd
+module github.com/lonord/rpi-epaper-drive
 
 go 1.12
 
