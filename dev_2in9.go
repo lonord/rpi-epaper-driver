@@ -166,7 +166,7 @@ func getPixelValue(x, y int, img image.Image) int {
 	c := img.At(x, y)
 	r, g, b, _ := c.RGBA()
 	if r == 0 && g == 0 && b == 0 {
-		return 1
+		return 0
 	}
-	return 0
+	return 1
 }
