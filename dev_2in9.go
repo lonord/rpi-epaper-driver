@@ -1,5 +1,7 @@
 package epd
 
+import "image"
+
 var (
 	dev2in9LutFullUpdate = []byte{
 		0x02, 0x02, 0x01, 0x11, 0x12, 0x12, 0x22, 0x22,
@@ -27,9 +29,13 @@ func newDev2in9(board *board) device {
 
 /***************************************** interface functions ****************************************/
 
-func (d *dev2in9) init() {
+func (d *dev2in9) init() error {
+	if err := d.board.init(); err != nil {
+		return err
+	}
 	// TODO full update and partial update
 	d.initLut(dev2in9LutFullUpdate)
+	return nil
 }
 
 func (d *dev2in9) clear() {
@@ -44,13 +50,13 @@ func (d *dev2in9) clear() {
 	d.turnOnDisplay()
 }
 
-func (d *dev2in9) display(bytes []byte) {
+func (d *dev2in9) display(img image.Image) {
 	d.setWindow(0, 0, uint(dev2in9Width-1), uint(dev2in9Height-1))
 	for j := 0; j < dev2in9Height; j++ {
 		d.setCursor(0, uint(j))
 		d.sendCmd(0x24)
 		for i := 0; i < dev2in9Width/8; i++ {
-			d.sendData(bytes[i+j*(dev2in9Width/8)])
+			d.sendData(getImageByte(j, i, img))
 		}
 	}
 	d.turnOnDisplay()
@@ -143,4 +149,23 @@ func (d *dev2in9) setCursor(x, y uint) {
 	d.sendData(byte(y & 0xff))
 	d.sendData(byte((y >> 8) & 0xff))
 	d.board.readBUSY()
+}
+
+func getImageByte(j, i int, img image.Image) byte {
+	var b byte
+	for x := i * 8; x < 8; x++ {
+		if getPixelValue(x, j, img) > 0 {
+			b = b | (1 << uint(7-x))
+		}
+	}
+	return b
+}
+
+func getPixelValue(x, y int, img image.Image) int {
+	c := img.At(x, y)
+	r, g, b, _ := c.RGBA()
+	if r == 0 && g == 0 && b == 0 {
+		return 0
+	}
+	return 1
 }

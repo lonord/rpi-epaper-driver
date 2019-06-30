@@ -1,5 +1,7 @@
 package epd
 
+import "image"
+
 // Epaper is a e-paper device
 type Epaper struct {
 	board  *board
@@ -18,10 +20,15 @@ func New() *Epaper {
 
 // Init setup gpio and e-paper board
 func (p *Epaper) Init() error {
-	if err := p.board.init(); err != nil {
+	if err := p.device.init(); err != nil {
 		return err
 	}
 	return nil
+}
+
+// Display display img on e-paper
+func (p *Epaper) Display(img image.Image) {
+	p.device.display(img)
 }
 
 // Clear clear the e-paper screen
@@ -31,5 +38,5 @@ func (p *Epaper) Clear() {
 
 // Close teardown gpio and e-paper board
 func (p *Epaper) Close() {
-	p.board.cleanup()
+	p.device.sleep()
 }

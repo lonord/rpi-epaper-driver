@@ -1,4 +1,4 @@
-module github.com/lonord/rpi-epaper-driver
+module epd
 
 go 1.12
 

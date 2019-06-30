@@ -1,8 +1,10 @@
 package epd
 
+import "image"
+
 type device interface {
-	init()
+	init() error
 	clear()
-	display(bytes []byte)
+	display(img image.Image)
 	sleep()
 }
