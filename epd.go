@@ -1,11 +1,18 @@
 package epd
 
-import "image"
+import (
+	"image"
+	"sync"
+)
+
+const particalUpdateCount = 10
 
 // Epaper is a e-paper device
 type Epaper struct {
 	board  *board
 	device device
+	mu     sync.Mutex
+	puc    int
 }
 
 // New create a new e-paper device
@@ -15,28 +22,39 @@ func New() *Epaper {
 	return &Epaper{
 		board:  b,
 		device: d,
+		puc:    particalUpdateCount,
 	}
-}
-
-// Init setup gpio and e-paper board
-func (p *Epaper) Init() error {
-	if err := p.device.init(); err != nil {
-		return err
-	}
-	return nil
 }
 
 // Display display img on e-paper
-func (p *Epaper) Display(img image.Image) {
-	p.device.display(img)
+func (p *Epaper) Display(img image.Image) error {
+	return p.wrap(func() {
+		p.device.display(img)
+	})
 }
 
 // Clear clear the e-paper screen
-func (p *Epaper) Clear() {
-	p.device.clear()
+func (p *Epaper) Clear() error {
+	return p.wrap(func() {
+		p.device.clear()
+	})
 }
 
-// Close teardown gpio and e-paper board
-func (p *Epaper) Close() {
-	p.device.sleep()
+func (p *Epaper) wrap(fn func()) error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	var pu bool
+	if p.puc > 0 {
+		pu = true
+		p.puc = p.puc - 1
+	} else {
+		pu = false
+		p.puc = particalUpdateCount
+	}
+	if err := p.device.init(pu); err != nil {
+		return err
+	}
+	defer p.device.sleep()
+	fn()
+	return nil
 }

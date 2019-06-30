@@ -29,12 +29,16 @@ func newDev2in9(board *board) device {
 
 /***************************************** interface functions ****************************************/
 
-func (d *dev2in9) init() error {
+func (d *dev2in9) init(particalUpdate bool) error {
 	if err := d.board.init(); err != nil {
 		return err
 	}
 	// TODO full update and partial update
-	d.initLut(dev2in9LutFullUpdate)
+	if particalUpdate {
+		d.initLut(dev2in9LutPartialUpdate)
+	} else {
+		d.initLut(dev2in9LutFullUpdate)
+	}
 	return nil
 }
 
@@ -65,6 +69,7 @@ func (d *dev2in9) display(img image.Image) {
 func (d *dev2in9) sleep() {
 	d.sendCmd(0x10)
 	d.sendData(0x01)
+	d.board.cleanup()
 }
 
 /***************************************** private functions ****************************************/
