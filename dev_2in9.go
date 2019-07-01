@@ -33,7 +33,6 @@ func (d *dev2in9) init(particalUpdate bool) error {
 	if err := d.board.init(); err != nil {
 		return err
 	}
-	// TODO full update and partial update
 	if particalUpdate {
 		d.initLut(dev2in9LutPartialUpdate)
 	} else {
@@ -170,7 +169,8 @@ func getImageByte(j, i int, img image.Image) byte {
 func getPixelValue(x, y int, img image.Image) int {
 	c := img.At(x, y)
 	r, g, b, _ := c.RGBA()
-	if r == 0 && g == 0 && b == 0 {
+	grey := (r*299 + g*587 + b*114 + 500) / 1000
+	if grey < 128 {
 		return 0
 	}
 	return 1
