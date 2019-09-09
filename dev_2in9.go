@@ -168,10 +168,8 @@ func getImageByte(j, i int, img image.Image) byte {
 
 func getPixelValue(x, y int, img image.Image) int {
 	c := img.At(x, y)
-	r, g, b, _ := c.RGBA()
-	grey := (r*299 + g*587 + b*114 + 500) / 1000
-	if grey < 128 {
-		return 0
+	if convertColorToBlackWhite(c) {
+		return 1
 	}
-	return 1
+	return 0
 }
