@@ -34,9 +34,12 @@ func (p *Epaper) Display(img image.Image) error {
 
 // Clear clear the e-paper screen
 func (p *Epaper) Clear() error {
-	return p.wrap(func() {
-		p.device.clear()
-	})
+	if err := p.device.init(false); err != nil {
+		return err
+	}
+	defer p.device.sleep()
+	p.device.clear()
+	return nil
 }
 
 func (p *Epaper) wrap(fn func()) error {
