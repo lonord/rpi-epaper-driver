@@ -22,7 +22,6 @@ func New() *Epaper {
 	return &Epaper{
 		board:  b,
 		device: d,
-		puc:    particalUpdateCount,
 	}
 }
 
