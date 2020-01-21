@@ -1,3 +1,14 @@
+// Package epd is the driver of waveshare e-paper for praspberry pi.
+//
+// Usage of this package
+//	import epd "github.com/lonord/rpi-epaper-driver"
+//
+//	// create a new e-paper device
+//	paper := epd.New()
+//	// display an image
+//	paper.Display(img)
+//	// clear the screen
+//	paper.Clear()
 package epd
 
 import (
